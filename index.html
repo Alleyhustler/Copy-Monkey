@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy Monkey | Chaos Trading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Pixels&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #fbce1f; /* Banana Yellow */
+            --accent: #9945FF;  /* Solana Purple */
+            --bg-dark: #0f1115;
+            --glass: rgba(20, 20, 30, 0.85);
+            --buy: #00ffa3;
+            --sell: #ff4d4d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace; /* Terminal vibe */
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: url('background.png');
+            background-size: cover;
+            
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Overlay to ensure text readability over background.png */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Header Section */
+        header {
+            margin-top: 40px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .logo {
+            width: 220px;
+            height: 220px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+              font-family: "Rubik Pixels", system-ui;
+
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 0px var(--accent);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .twitter-btn {
+            display: inline-block;
+            background: #1DA1F2;
+            color: white;
+            text-decoration: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-family: sans-serif;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .twitter-btn:hover {
+            transform: scale(1.05);
+            background: #0c85d0;
+        }
+
+        /* Live Feed Section */
+        .terminal-window {
+            background: var(--glass);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .live-indicator {
+            color: var(--buy);
+            animation: pulse 1.5s infinite;
+        }
+
+        #trade-feed {
+            height: 300px;
+            overflow-y: hidden; /* We will auto-scroll or insert at top */
+            position: relative;
+        }
+
+        .trade-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .trade-wallet { color: #888; }
+        .trade-action.buy { color: var(--buy); font-weight: bold; }
+        .trade-action.sell { color: var(--sell); font-weight: bold; }
+        .trade-msg { color: var(--primary); font-size: 0.85rem; font-style: italic;}
+
+        /* Logic Section */
+        .logic-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 50px;
+        }
+
+        .logic-box h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .logic-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        footer {
+            font-size: 0.8rem;
+            color: #555;
+            padding-bottom: 20px;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mobile Tweaks */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .trade-row { flex-direction: column; gap: 4px; }
+            .trade-row span { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="container">
+        
+        <!-- Hero -->
+        <header>
+            <img src="a.png" alt="Copy Monkey Logo" class="logo">
+            <h1>Copy Monkey</h1>
+            <p class="tagline">“A monkey smart contract that copy-trades the last buyer randomly — sometimes genius, sometimes disastrous.”</p>
+            <a href="https://twitter.com" target="_blank" class="twitter-btn">Follow on Twitter</a>
+        </header>
+
+        <!-- Live Feed -->
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <span><span class="live-indicator">●</span> Live Monkey Feed</span>
+                <span>Solana Mainnet (Simulated)</span>
+            </div>
+            <div id="trade-feed">
+                <!-- Trades will be injected here via JS -->
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="logic-box">
+            <h3>How The Logic Works</h3>
+            <p>
+                The Copy Monkey contract scans the mempool for the most recent purchase of any token. 
+                It then rolls a dice (on-chain randomness). If it lands on <strong>BANANA</strong>, 
+                it blindly copies the trade. If it lands on <strong>POOP</strong>, it sells everything. 
+                Zero strategy. 100% Chaos.
+            </p>
+        </div>
+
+        <footer>
+            &copy; 2025 Copy Monkey. Not financial advice. Usually financial ruin.
+        </footer>
+    </div>
+
+    <script>
+        const feedContainer = document.getElementById('trade-feed');
+        
+        // Data for simulation
+        const actions = ['BUY', 'SELL'];
+        const comments = [
+            "Monkey see, monkey do 🍌",
+            "Aped in blind!",
+            "Panic selling...",
+            "Copied wallet 8x...F4",
+            "Chasing green candles",
+            "Rekt.",
+            "Buying the top",
+            "Diamond hands? No.",
+            "Random trigger fired",
+            "Genius move (accidental)"
+        ];
+
+        // Generate a random Solana-style wallet
+        function generateWallet() {
+            const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let start = '';
+            let end = '';
+            for(let i=0; i<4; i++) start += chars.charAt(Math.floor(Math.random() * chars.length));
+            for(let i=0; i<4; i++) end += chars.charAt(Math.floor(Math.random() * chars.length));
+            return `${start}...${end}`;
+        }
+
+        // Generate a random SOL amount
+        function generateAmount() {
+            return (Math.random() * 5 + 0.1).toFixed(2);
+        }
+
+        function createTrade() {
+            const action = Math.random() > 0.4 ? 'BUY' : 'SELL'; // Slightly more buys
+            const wallet = generateWallet();
+            const amount = generateAmount();
+            const comment = comments[Math.floor(Math.random() * comments.length)];
+            
+            const row = document.createElement('div');
+            row.className = 'trade-row';
+            
+            // Determine color class
+            const actionClass = action === 'BUY' ? 'buy' : 'sell';
+            const actionSymbol = action === 'BUY' ? '+' : '-';
+
+            row.innerHTML = `
+                <span class="trade-wallet">Wallet: ${wallet}</span>
+                <span class="trade-action ${actionClass}">${action} ${amount} SOL</span>
+                <span class="trade-msg">"${comment}"</span>
+            `;
+
+            // Insert at the top
+            feedContainer.insertBefore(row, feedContainer.firstChild);
+
+            // Keep DOM clean: remove items if more than 7
+            if (feedContainer.children.length > 7) {
+                feedContainer.removeChild(feedContainer.lastChild);
+            }
+        }
+
+        // Initialize simulation loop with random intervals for realism
+        function startSimulation() {
+            // Create initial dummy data
+            createTrade();
+            createTrade();
+            
+            function loop() {
+                const randomDelay = Math.floor(Math.random() * 2000) + 800; // 0.8s to 2.8s
+                setTimeout(() => {
+                    createTrade();
+                    loop();
+                }, randomDelay);
+            }
+            loop();
+        }
+
+        // Run
+        startSimulation();
+
+    </script>
+</body>
+</html>
